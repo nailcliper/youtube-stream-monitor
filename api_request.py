@@ -18,14 +18,18 @@ def api_parse(video_ids):
         if len(response['items']) > 0:
             for item in response['items']:
                 data = {}
+                
                 snippet = item['snippet']
-                liveStreamingDetails = item['liveStreamingDetails']
                 data['title'] = snippet['title']
                 data['channel'] = snippet['channelTitle']
                 data['live'] = snippet['liveBroadcastContent']
                 data['id'] = item['id']
-                if liveStreamingDetails != 'none':
-                    data['schedule'] = liveStreamingDetails['scheduledStartTime']
+                
+                if("liveStreamingDetails" in item):
+                    liveStreamingDetails = item['liveStreamingDetails']
+                    if liveStreamingDetails != 'none':
+                        data['schedule'] = liveStreamingDetails['scheduledStartTime']
+                
                 api_data.append(data)
     except:
         print("No response from API request")
