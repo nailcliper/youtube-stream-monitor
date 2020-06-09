@@ -52,13 +52,13 @@ while True:
     if len(api_data) > 0:
         for data in api_data:
             if data['live'] == 'none':
-                t_videos.add(video)
+                t_videos.add(data['id'])
             elif data['live'] == 'upcoming':
                 print(data['channel'],':',data['id'],":",data['live'],data['schedule'],":",data['title'])
             elif data['live'] == 'live':
                 print(data['channel'],':',data['id'],":",data['live'],":",data['title'])
                 archive(data)
-                t_videos.add(video)
+                t_videos.add(data['id'])
     
     if videos != t_videos:
         videos = t_videos
