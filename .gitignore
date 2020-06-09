@@ -1,0 +1,5 @@
+
+*.pyc
+videos.txt
+monitor_list.txt
+env.py
