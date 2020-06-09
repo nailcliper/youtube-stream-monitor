@@ -20,8 +20,10 @@ def archive(data):
 
 while True:
     monitor_list = []
+    request_list = ''
     videos = set()
     t_videos = set()
+    t = time.gmtime(0)
     
     with open(os.path.join(__location__,"monitor_list.txt"),'r') as f:
         for line in f:
@@ -30,7 +32,7 @@ while True:
                 line = line.split()
                 monitor_list.append(line[0])
         f.close()
-        
+    
     with open(os.path.join(__location__,"videos.txt"),'r') as f:
         for line in f:
             line = line.strip()
@@ -40,30 +42,30 @@ while True:
     print("Polling\n")
     for channel in monitor_list:
         xml_data = xml_parse(channel)
-        print(xml_data['channel'])
         for video in xml_data['videos']:
             if video not in videos:
-                api_data = api_parse(video)
-                if (api_data):
-                    print(video,":",api_data['live'],":",api_data['title'])
-                    if api_data['live'] == 'none':
-                        t_videos.add(video)
-                    elif api_data['live'] == 'upcoming':
-                        pass
-                    elif api_data['live'] == 'live':
-                        archive(api_data)
-                        t_videos.add(video)
+                request_list += video+','
             else:
                 t_videos.add(video)
-        print()
+    
+    api_data = api_parse(request_list)
+    if len(api_data) > 0:
+        for data in api_data:
+            if data['live'] == 'none':
+                t_videos.add(video)
+            elif data['live'] == 'upcoming':
+                print(data['channel'],':',data['id'],":",data['live'],data['schedule'],":",data['title'])
+            elif data['live'] == 'live':
+                print(data['channel'],':',data['id'],":",data['live'],":",data['title'])
+                archive(data)
+                t_videos.add(video)
     
     if videos != t_videos:
         videos = t_videos
-        
         with open(os.path.join(__location__,"videos.txt"),'w') as f:
             for video in videos:
                 f.write(video+'\n')
             f.close()
-
-    print("Waiting...")
-    time.sleep(90)
+    
+    print("\nWaiting...")
+    time.sleep(60)
