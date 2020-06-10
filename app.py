@@ -15,10 +15,10 @@ t = datetime.now().replace(microsecond=0)
 def archive(data):
     channel = data['channel'].translate(remove_illegal_char_map)
     title = data['title'].translate(remove_illegal_char_map)
-    t = t.strftime('%Y-%m-%d_%H-%M-%S')
+    start = t.strftime('%Y-%m-%d_%H-%M-%S')
     if not os.path.exists(ARCHIVE_PATH + channel):
         os.makedirs(ARCHIVE_PATH + channel)
-    output_location = ARCHIVE_PATH + channel + "\\" + t + "_" + title + "_" + data['id'] + ".mp4"
+    output_location = ARCHIVE_PATH + channel + "\\" + start + "_" + title + "_" + data['id'] + ".mp4"
     youtube_link = "https://www.youtube.com/watch?v=" + data['id']
     cmd = "streamlink --hls-live-restart -o \"" + output_location + "\" " + youtube_link + " best"
     os.system("start cmd /k "+cmd)
@@ -64,7 +64,7 @@ while True:
                 schedule = schedule.astimezone(localz).replace(tzinfo=None)
                 print(data['channel'],'\t:',data['id'],":",schedule,":",data['title'])
             elif data['live'] == 'live':
-                print(data['channel'],'\t:',data['id'],":",data['live'],":",data['title'])
+                print(data['channel'],'\t:',data['id'],":",data['live'],"               :",data['title'])
                 archive(data)
                 t_videos.add(data['id'])
     
