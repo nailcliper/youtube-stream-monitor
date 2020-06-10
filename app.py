@@ -1,16 +1,21 @@
 import os
 import time
+from datetime import datetime
+from dateutil import tz
 from xml_parser import xml_parse
 from api_request import api_parse
 from env import ARCHIVE_PATH
 
 __location__  = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 remove_illegal_char_map = dict((ord(char), '_') for char in '/\*?:"<>|')
+utcz = tz.tzutc()
+localz = tz.tzlocal()
+t = datetime.now().replace(microsecond=0)
 
 def archive(data):
     channel = data['channel'].translate(remove_illegal_char_map)
     title = data['title'].translate(remove_illegal_char_map)
-    t = time.strftime('%Y-%m-%d_%H-%M-%S')
+    t = t.strftime('%Y-%m-%d_%H-%M-%S')
     if not os.path.exists(ARCHIVE_PATH + channel):
         os.makedirs(ARCHIVE_PATH + channel)
     output_location = ARCHIVE_PATH + channel + "\\" + t + "_" + title + "_" + data['id'] + ".mp4"
@@ -23,7 +28,7 @@ while True:
     request_list = ''
     videos = set()
     t_videos = set()
-    t = time.gmtime(0)
+    t = datetime.now().replace(microsecond=0)
     
     with open(os.path.join(__location__,"monitor_list.txt"),'r') as f:
         for line in f:
@@ -39,7 +44,7 @@ while True:
             videos.add(line)
         f.close()
     
-    print("Polling\n")
+    print("Polling",t,'\n')
     for channel in monitor_list:
         xml_data = xml_parse(channel)
         for video in xml_data['videos']:
@@ -50,13 +55,16 @@ while True:
     
     api_data = api_parse(request_list)
     if len(api_data) > 0:
+        api_data = sorted(api_data, key=lambda k: k['schedule'])
         for data in api_data:
             if data['live'] == 'none':
                 t_videos.add(data['id'])
             elif data['live'] == 'upcoming':
-                print(data['channel'],':',data['id'],":",data['live'],data['schedule'],":",data['title'])
+                schedule = datetime.fromisoformat(data['schedule'][:-1]).replace(tzinfo=utcz)
+                schedule = schedule.astimezone(localz).replace(tzinfo=None)
+                print(data['channel'],'\t:',data['id'],":",schedule,":",data['title'])
             elif data['live'] == 'live':
-                print(data['channel'],':',data['id'],":",data['live'],":",data['title'])
+                print(data['channel'],'\t:',data['id'],":",data['live'],":",data['title'])
                 archive(data)
                 t_videos.add(data['id'])
     

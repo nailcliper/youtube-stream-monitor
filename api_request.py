@@ -26,10 +26,9 @@ def api_parse(video_ids):
                 data['id'] = item['id']
                 
                 if("liveStreamingDetails" in item):
-                    liveStreamingDetails = item['liveStreamingDetails']
-                    if liveStreamingDetails != 'none':
-                        data['schedule'] = liveStreamingDetails['scheduledStartTime']
-                
+                    data['schedule'] = item['liveStreamingDetails']['scheduledStartTime']
+                else:
+                    data['schedule'] = None
                 api_data.append(data)
     except:
         print("No response from API request")
