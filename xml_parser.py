@@ -5,8 +5,8 @@ def xml_parse(id):
     data = None
     output = None
     http = urllib3.PoolManager()
-    response = http.request('GET',"https://www.youtube.com/feeds/videos.xml?channel_id="+id)
     try:
+        response = http.request('GET',"https://www.youtube.com/feeds/videos.xml?channel_id="+id)
         data = xmltodict.parse(response.data)
         
         feed = data['feed']

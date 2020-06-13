@@ -53,20 +53,23 @@ while True:
             else:
                 t_videos.add(video)
     
-    api_data = api_parse(request_list)
+    api_data = api_parse(request_list) if request_list != '' else []
     if len(api_data) > 0:
         api_data = sorted(api_data, key=lambda k: k['schedule'])
         for data in api_data:
             if data['live'] == 'none':
+                print(data['channel'],'\t:',data['id'],": Uploaded Video      :",data['title'])
                 t_videos.add(data['id'])
             elif data['live'] == 'upcoming':
                 schedule = datetime.fromisoformat(data['schedule'][:-1]).replace(tzinfo=utcz)
                 schedule = schedule.astimezone(localz).replace(tzinfo=None)
                 print(data['channel'],'\t:',data['id'],":",schedule,":",data['title'])
             elif data['live'] == 'live':
-                print(data['channel'],'\t:',data['id'],":",data['live'],"               :",data['title'])
+                print(data['channel'],'\t:',data['id'],": Live Now!           :",data['title'])
                 archive(data)
                 t_videos.add(data['id'])
+    else:
+        print("No Streams Found")
     
     if videos != t_videos:
         videos = t_videos
