@@ -47,11 +47,12 @@ while True:
     print("Polling",t,'\n')
     for channel in monitor_list:
         xml_data = xml_parse(channel)
-        for video in xml_data['videos']:
-            if video not in videos:
-                request_list += video+','
-            else:
-                t_videos.add(video)
+        if xml_data:
+            for video in xml_data['videos']:
+                if video not in videos:
+                    request_list += video+','
+                else:
+                    t_videos.add(video)
     
     api_data = api_parse(request_list) if request_list != '' else []
     if len(api_data) > 0:
