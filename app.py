@@ -24,11 +24,11 @@ def archive(data):
     os.system("start cmd /k "+cmd)
 
 while True:
+    t = datetime.now().replace(microsecond=0)
     monitor_list = []
-    request_list = ''
+    request_list = []
     videos = set()
     t_videos = set()
-    t = datetime.now().replace(microsecond=0)
     
     with open(os.path.join(__location__,"monitor_list.txt"),'r') as f:
         for line in f:
@@ -45,16 +45,22 @@ while True:
         f.close()
     
     print("Polling",t,'\n')
+    t_list = []
     for channel in monitor_list:
         xml_data = xml_parse(channel)
         if xml_data:
             for video in xml_data['videos']:
                 if video not in videos:
-                    request_list += video+','
+                    if len(t_list) == 50:
+                        request_list.append(t_list)
+                        t_list = []
+                    t_list.append(video)
                 else:
                     t_videos.add(video)
+    if len(t_list) > 0:
+        request_list.append(t_list)
     
-    api_data = api_parse(request_list) if request_list != '' else []
+    api_data = api_parse(request_list) if len(request_list) > 0  else []
     if len(api_data) > 0:
         api_data = sorted(api_data, key=lambda k: k['schedule'])
         for data in api_data:
@@ -80,4 +86,4 @@ while True:
             f.close()
     
     print("\nWaiting...")
-    time.sleep(60)
+    time.sleep(60 - datetime.now().second)

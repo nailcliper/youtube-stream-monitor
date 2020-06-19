@@ -6,7 +6,7 @@ def xml_parse(id):
     output = None
     http = urllib3.PoolManager()
     try:
-        response = http.request('GET',"https://www.youtube.com/feeds/videos.xml?channel_id="+id)
+        response = http.request('GET',"https://www.youtube.com/feeds/videos.xml?channel_id="+id,timeout=5)
         data = xmltodict.parse(response.data)
         feed = data['feed']
         title = feed['title']   #channel name
