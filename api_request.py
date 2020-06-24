@@ -30,11 +30,12 @@ def api_parse(request_list):
                         data['channel'] = snippet['channelTitle']
                         data['live'] = snippet['liveBroadcastContent']
                         data['id'] = item['id']
-                        
+                        data['schedule'] = ''
                         if("liveStreamingDetails" in item):
-                            data['schedule'] = item['liveStreamingDetails']['scheduledStartTime']
-                        else:
-                            data['schedule'] = ''
+                            if('scheduledStartTime' in item['liveStreamingDetails']):
+                                data['schedule'] = item['liveStreamingDetails']['scheduledStartTime']
+                            elif('actualStartTime' in item['liveStreamingDetails']):
+                                data['schedule'] = item['liveStreamingDetails']['actualStartTime']
                         api_data.append(data)
             except:
                 print("No response from API request")
