@@ -1,6 +1,6 @@
 import urllib3
 import xmltodict
-    
+
 def xml_parse(id):
     data = None
     output = None
@@ -12,14 +12,14 @@ def xml_parse(id):
         title = feed['title']   #channel name
         if "entry" in feed:
             entry = feed['entry']   #videos
-            
             output = {}
             output['channel'] = title
             output['videos'] = set()
-
-            for video in entry:
-                v = video['yt:videoId']
-                output['videos'].add(v)
+            if isinstance(entry,list):
+                for video in entry:
+                    output['videos'].add(video['yt:videoId'])
+            elif isinstance(entry,dict):
+                output['videos'].add(entry['yt:videoId'])
     except:
         print("Failed to parse xml from response, id: "+id)
     
